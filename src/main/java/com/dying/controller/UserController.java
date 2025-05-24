@@ -36,6 +36,7 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    
 
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
@@ -110,12 +111,44 @@ public class UserController {
         return ResultUtils.success(b);
     }
 
-    public Integer userLogout(HttpServletRequest request) {
-        if(request==null){
-            return null;
+    @GetMapping("/searchOne")
+    public BaseResponse<List<User>> updateMassage(HttpServletRequest request) {
+        Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User user = (User) attribute;
+        if (user == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN,"未登录");
         }
-        return userService.userLogout(request);
+        long userId = user.getId();
+        User user1 = userService.getById(userId);
+        List<User> list = new ArrayList<>();
+        list.add(user1);
+        return ResultUtils.success(list);
+    }
 
+    @PostMapping("/update")
+    public BaseResponse<Boolean> userUpdate(@RequestBody User user, HttpServletRequest request) {
+        Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User user1 = (User) attribute;
+        if (user1 == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN,"未登录");
+        }
+        if(!userService.userUpdate(user)){
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"更改失败");
+        }
+        return ResultUtils.success(true);
+    }
+    
+    
+    @PostMapping("/logout")
+    public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
+        if (request == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
+        }
+        if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN, "未登录");
+        }
+        int result = userService.userLogout(request);
+        return ResultUtils.success(result > 0);
     }
 
     public boolean isAdmin(HttpServletRequest request) {

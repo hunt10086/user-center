@@ -19,4 +19,6 @@ public interface UserService extends IService<User> {
     User getSaftyUser(User originUser);
 
     int userLogout(HttpServletRequest request);
+
+    boolean userUpdate(User user);
 }

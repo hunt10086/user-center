@@ -134,14 +134,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return saftyUser;
     }
 
+    @Override
+    public boolean userUpdate(User user) {
+        if(user==null){
+            return false;
+        }
+        userMapper.updateById(user);
+        return true;
+    }
+
+
+
 
     @Override
     public int userLogout(HttpServletRequest request) {
-        if(request==null){
+        if(request == null){
             return 0;
         }
+        // 移除登录态
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
         return 1;
-        //request.getSession().removeAttribute(USER_LOGIN_STATE);
     }
 }
 
